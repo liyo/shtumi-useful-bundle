@@ -8,7 +8,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DependentFilteredSelect2Type extends AbstractType
 {
@@ -20,7 +20,7 @@ class DependentFilteredSelect2Type extends AbstractType
         $this->container = $container;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
             'empty_value'       => '',
@@ -30,12 +30,7 @@ class DependentFilteredSelect2Type extends AbstractType
         ));
     }
 
-    public function getParent()
-    {
-        return 'form';
-    }
-
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'shtumi_dependent_filtered_select2';
     }

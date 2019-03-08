@@ -1,7 +1,7 @@
 {
-    "name": "avalia/shtumi-useful-bundle",
+    "name": "barteku/shtumi-useful-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony ShtumiUsefulBundle",
+    "description": "Symfony ShtumiUsefulBundle - bart edit",
     "keywords": ["Ajax Autocomplete form type", "Dependent filtered form type", "daterange", "shtumi"],
     "license": "MIT",
     "authors": [
@@ -22,7 +22,7 @@
         "sonata-project/doctrine-orm-admin-bundle": "master-dev"
     },
     "autoload": {
-        "psr-0": { "Shtumi\\UsefulBundle": "Avalia/" }
+        "psr-0": { "Shtumi\\UsefulBundle": "Barteku/" }
     },
-    "target-dir": "Avalia/Shtumi/UsefulBundle"
+    "target-dir": "Barteku/Shtumi/UsefulBundle"
 }
