@@ -81,7 +81,7 @@ class DependentFilteredEntityController extends Controller
     {
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->get('doctrine.orm.entity_manager');
-        $request = $this->get('request');
+        $request = $this->get('request_stack');
 
         $entity_alias = $request->get('entity_alias');
         $parent_id    = $request->get('parent_id');
