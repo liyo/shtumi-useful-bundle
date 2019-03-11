@@ -5,18 +5,15 @@ namespace Shtumi\UsefulBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AjaxFileController extends Controller
 {
 
-    public function uploadAction()
+    public function uploadAction(Request $request )
     {
-        $request = $this->getRequest();
-
         $filesBag = $request->files->all();
 
         $files = array();
@@ -33,10 +30,10 @@ class AjaxFileController extends Controller
 
         $filesResult ['length'] = count($files);
 
-        return new Response(json_encode(array(
+        return new JsonResponse(array(
             'result' => array(
                 'files' => $filesResult
             )
-        )));
+        ));
     }
 }

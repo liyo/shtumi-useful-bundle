@@ -5,19 +5,17 @@ namespace Shtumi\UsefulBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AjaxAutocompleteJSONController extends Controller
 {
 
-    public function getJSONAction()
+    public function getJSONAction(Request $request)
     {
 
         $em = $this->get('doctrine')->getManager();
-        $request = $this->getRequest();
 
         $entities = $this->get('service_container')->getParameter('shtumi.autocomplete_entities');
 
@@ -25,9 +23,7 @@ class AjaxAutocompleteJSONController extends Controller
         $entity_inf = $entities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
-            if (false === $this->get('security.context')->isGranted( $entity_inf['role'] )) {
-                throw new AccessDeniedException();
-            }
+            $this->denyAccessUnlessGranted($entity_inf['role']);
         }
 
         $letters = $request->get('letters');
@@ -74,7 +70,7 @@ class AjaxAutocompleteJSONController extends Controller
             $res[] = $r[$entity_inf['property']];
         }
 
-        return new Response(json_encode($res));
+        return new JsonResponse($res);
 
     }
 }
