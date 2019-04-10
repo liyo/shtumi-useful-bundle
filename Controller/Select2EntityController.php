@@ -24,9 +24,7 @@ class Select2EntityController extends Controller
         $entity_inf = $entities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
-            if (false === $this->get('security.context')->isGranted( $entity_inf['role'] )) {
-                throw new AccessDeniedException();
-            }
+            $this->denyAccessUnlessGranted($entity_inf['role']);
         }
 
         $letters = $request->get('term');
