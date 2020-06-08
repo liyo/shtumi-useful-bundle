@@ -12,6 +12,10 @@
         {
             "name": "Alessandro Friscia",
             "email": "alessandro@avalia.it"
+        },
+        {
+            "name": "Bartosz Urbanski",
+            "email": "urbanski.bartek@gmail.com"
         }
     ],
     "require": {
@@ -23,5 +27,11 @@
     },
     "autoload": {
         "psr-4": { "Shtumi\\UsefulBundle\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Shtumi\\UsefulBundle\\Tests\\": "tests/" }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
