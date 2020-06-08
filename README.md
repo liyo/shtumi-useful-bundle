@@ -58,7 +58,8 @@ twig:
     ...
     form:
         resources:
-            - ShtumiUsefulBundle::fields.html.twig
+            ...
+            - '@ShtumiUsefulBundle::fields.html.twig'
 ```
 
 Update your configuration in accordance with [using ShtumiUsefulBundle things](https://github.com/barteku/shtumi-useful-bundle/blob/master/Resources/doc/index.rst)
