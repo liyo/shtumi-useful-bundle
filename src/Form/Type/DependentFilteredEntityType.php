@@ -19,6 +19,7 @@ class DependentFilteredEntityType extends AbstractType
         $this->container = $container;
     }
 
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
