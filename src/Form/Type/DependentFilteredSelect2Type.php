@@ -2,8 +2,11 @@
 
 namespace Shtumi\UsefulBundle\Form\Type;
 
+use Doctrine\Common\Collections\Collection;
 use Shtumi\UsefulBundle\Form\DataTransformer\EntityToIdTransformer;
 use Shtumi\UsefulBundle\Form\DataTransformer\EntityToSelect2ValueTransformer;
+use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
+use Symfony\Bridge\Doctrine\Form\EventListener\MergeDoctrineCollectionListener;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
@@ -26,7 +29,8 @@ class DependentFilteredSelect2Type extends AbstractType
             'empty_value'       => '',
             'entity_alias'      => null,
             'parent_field'      => null,
-            'compound'          => false
+            'compound'          => false,
+            'multiple'          => 0
         ));
     }
 
@@ -53,6 +57,15 @@ class DependentFilteredSelect2Type extends AbstractType
         $builder->setAttribute("entity_alias", $options['entity_alias']);
         $builder->setAttribute("no_result_msg", $options['no_result_msg']);
         $builder->setAttribute("empty_value", $options['empty_value']);
+        $builder->setAttribute("multiple", $options['multiple']);
+
+
+        if ($options['multiple'] && interface_exists(Collection::class)) {
+            $builder
+                ->addEventSubscriber(new MergeDoctrineCollectionListener())
+                //->addViewTransformer(new CollectionToArrayTransformer(), true)
+            ;
+        }
 
     }
 
@@ -62,6 +75,7 @@ class DependentFilteredSelect2Type extends AbstractType
         $view->vars['entity_alias'] = $form->getConfig()->getAttribute('entity_alias');
         $view->vars['no_result_msg'] = $form->getConfig()->getAttribute('no_result_msg');
         $view->vars['empty_value'] = $form->getConfig()->getAttribute('empty_value');
+        $view->vars['multiple'] = $form->getConfig()->getAttribute('multiple', 0);
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace Shtumi\UsefulBundle\Form\DataTransformer;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\ORM\EntityManager;
@@ -25,6 +26,12 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
 
     public function transform($entity)
     {
+  
+        if(is_array($entity)){
+            $entity = new ArrayCollection($entity);
+        }
+
+
         if($entity instanceof Collection){
             if ($entity->count() == 0){
                 return json_encode([]);
@@ -42,7 +49,7 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
         }
 
         if (null === $entity || '' === $entity) {
-            return 'null';
+            return json_encode([]);
         }
         if (!is_object($entity)) {
             throw new UnexpectedTypeException($entity, 'object');
@@ -59,20 +66,32 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
 
     public function reverseTransform($id)
     {
+
         if ('' === $id || null === $id) {
             return null;
         }
+        $ids = explode(',', $id);
+        if(count($ids)>1){
+            $entities = $this->em->getRepository($this->class)->findBy(['id' => $ids]);
 
-        if (!is_numeric($id)) {
-            throw new UnexpectedTypeException($id, 'numeric' . $id);
+            if(!count($entities)){
+                throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
+            }
+
+            return $entities;
+
+        }else{
+            if (!is_numeric($id)) {
+                throw new UnexpectedTypeException($id, 'numeric' . $id);
+            }
+
+            $entity = $this->em->getRepository($this->class)->findOneById($id);
+
+            if ($entity === null) {
+                throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
+            }
+
+            return $entity;
         }
-
-        $entity = $this->em->getRepository($this->class)->findOneById($id);
-
-        if ($entity === null) {
-            throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
-        }
-
-        return $entity;
     }
 }

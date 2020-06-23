@@ -172,8 +172,10 @@
                     results: function (data, page) {
                         return {results: data};
                     }
-                }
+                },
+                'multiple': {{ multiple }}
             });
+
             jQuery("#{{ form.vars.id }}").select2('data', {{ value|raw }});
 
             parent.change(function(){

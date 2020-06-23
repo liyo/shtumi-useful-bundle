@@ -55,23 +55,33 @@ class EntityToIdTransformer implements DataTransformerInterface
 
     public function reverseTransform($id)
     {
-        //var_dump($id);
-
         if ('' === $id || null === $id) {
             return null;
         }
 
-        if (!is_numeric($id)) {
-            throw new UnexpectedTypeException($id, 'numeric' . $id);
+        $ids = explode(',', $id);
+        if(count($ids)>1){
+            $entities = $this->em->getRepository($this->class)->findBy(['id' => $ids]);
+
+            if(!$entities->count()){
+                throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
+            }
+
+            var_dump($entities);die;
+            return $entities;
+
+        }else{
+            if (!is_numeric($id)) {
+                throw new UnexpectedTypeException($id, 'numeric' . $id);
+            }
+
+            $entity = $this->em->getRepository($this->class)->findOneById($id);
+
+            if ($entity === null) {
+                throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
+            }
+
+            return $entity;
         }
-
-        $entity = $this->em->getRepository($this->class)->findOneById($id);
-
-        if ($entity === null) {
-            throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
-        }
-
-
-        return new ArrayCollection([$entity]);
     }
 }
