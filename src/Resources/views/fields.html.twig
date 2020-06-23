@@ -105,7 +105,7 @@
         jQuery(function(){
 
             jQuery("select#{{ form.parent.offsetGet( parent_field ).vars.id }}").change( function() {
-                var selected_index = {{ value ? value : 0 }};
+                var selected_index = {{ value ? value|json_encode : 0 }};
                 jQuery("#loader").show();
                 jQuery.ajax({
                     type: "POST",

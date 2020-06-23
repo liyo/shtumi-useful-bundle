@@ -8,15 +8,21 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Doctrine\ORM\EntityManagerInterface;
+
+
 
 class DependentFilteredEntityType extends AbstractType
 {
 
-    private $container;
+    private $entityManager;
 
-    public function __construct($container)
+    private $filteredEntities;
+
+    public function __construct(EntityManagerInterface $entityManager, $filteredEntities)
     {
-        $this->container = $container;
+        $this->entityManager = $entityManager;
+        $this->filteredEntities = $filteredEntities;
     }
 
 
@@ -38,14 +44,14 @@ class DependentFilteredEntityType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
-        $entities = $this->container->getParameter('shtumi.dependent_filtered_entities');
+        $entities = $this->filteredEntities;
         $options['class'] = $entities[$options['entity_alias']]['class'];
         $options['property'] = $entities[$options['entity_alias']]['property'];
 
         $options['no_result_msg'] = $entities[$options['entity_alias']]['no_result_msg'];
 
         $builder->addViewTransformer(new EntityToIdTransformer(
-            $this->container->get('doctrine')->getManager(),
+            $this->entityManager,
             $options['class']
         ), true);
 

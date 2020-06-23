@@ -2,6 +2,7 @@
 
 namespace Shtumi\UsefulBundle\Form\DataTransformer;
 
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
@@ -24,6 +25,21 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
 
     public function transform($entity)
     {
+        if($entity instanceof Collection){
+            if ($entity->count() == 0){
+                return json_encode([]);
+            }else{
+                $items = [];
+                foreach ($entity as $item) {
+                    $items[] = [
+                        'id' => $item->getId(),
+                        'text' => (string)$item
+                        ];
+                }
+
+                return json_encode($items);
+            }
+        }
 
         if (null === $entity || '' === $entity) {
             return 'null';

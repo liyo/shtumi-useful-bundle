@@ -2,6 +2,8 @@
 
 namespace Shtumi\UsefulBundle\Form\DataTransformer;
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
@@ -25,6 +27,19 @@ class EntityToIdTransformer implements DataTransformerInterface
     public function transform($entity)
     {
 
+        if($entity instanceof Collection){
+            if ($entity->count() == 0){
+                return [];
+            }else{
+                $items = [];
+                foreach ($entity as $item) {
+                    $items[] = $item->getId();
+                }
+
+                return $items;
+            }
+        }
+
         if (null === $entity || '' === $entity) {
             return 'null';
         }
@@ -40,6 +55,8 @@ class EntityToIdTransformer implements DataTransformerInterface
 
     public function reverseTransform($id)
     {
+        //var_dump($id);
+
         if ('' === $id || null === $id) {
             return null;
         }
@@ -54,6 +71,7 @@ class EntityToIdTransformer implements DataTransformerInterface
             throw new TransformationFailedException(sprintf('The entity with key "%s" could not be found', $id));
         }
 
-        return $entity;
+
+        return new ArrayCollection([$entity]);
     }
 }
