@@ -27,45 +27,20 @@ You can use Ajax autocomplete form type as a filter type with [SonataAdminBundle
 
 ## Installation
 
-### Add the following lines to your  `deps` file and then run `php bin/vendors install`:
+### Add the following lines to your  `composer.json` file and then run `php composer require barteku/shtumi-useful-bundle`:
 
 ```
-[ShtumiUsefulBundle]
-    git=https://github.com/shtumi/ShtumiUsefulBundle.git
-    target=bundles/Shtumi/UsefulBundle
+"repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:barteku/shtumi-useful-bundle.git"
+        }
+    ],
 ```
 
-For Symfony 2.0 please use branch 2.0 of ShtumiUsefulBundle:
-
-```
-[ShtumiUsefulBundle]
-    git=https://github.com/shtumi/ShtumiUsefulBundle.git
-    target=bundles/Shtumi/UsefulBundle
-    version=origin/2.0
-```
 
 You also should install [SonataAdminBundle](https://github.com/sonata-project/SonataAdminBundle) and all dependencies for it.
 
-### Add ShtumiUsefulBundle to your application kernel
-```
-    // app/AppKernel.php
-    public function registerBundles()
-    {
-        return array(
-            // ...
-            new Shtumi\UsefulBundle\ShtumiUsefulBundle(),
-            // ...
-        );
-    }
-```
-### Register the ShtumiUsefulBundle namespace
-```
-    // app/autoload.php
-    $loader->registerNamespaces(array(
-        'Shtumi'            => __DIR__.'/../vendor/bundles',
-        // your other namespaces
-    ));
-```
 ### Import routes
 
 // app/config/routing.yml
@@ -83,10 +58,11 @@ twig:
     ...
     form:
         resources:
-            - ShtumiUsefulBundle::fields.html.twig
+            ...
+            - '@ShtumiUsefulBundle::fields.html.twig'
 ```
 
-Update your configuration in accordance with [using ShtumiUsefulBundle things](https://github.com/shtumi/ShtumiUsefulBundle/blob/master/Resources/doc/index.rst)
+Update your configuration in accordance with [using ShtumiUsefulBundle things](https://github.com/barteku/shtumi-useful-bundle/blob/master/Resources/doc/index.rst)
 
 ### Load jQuery to your views
 ```
