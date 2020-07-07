@@ -16,62 +16,71 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
     protected $em;
     protected $class;
     protected $unitOfWork;
+    protected $multiple;
 
-    public function __construct(EntityManager $em, $class)
+
+    public function __construct(EntityManager $em, $class, $multiple = false)
     {
         $this->em = $em;
         $this->unitOfWork = $this->em->getUnitOfWork();
         $this->class = $class;
+        $this->multiple = $multiple;
     }
 
     public function transform($entity)
     {
-  
-        if(is_array($entity)){
-            $entity = new ArrayCollection($entity);
-        }
 
-
-        if($entity instanceof Collection){
-            if ($entity->count() == 0){
-                return json_encode([]);
-            }else{
-                $items = [];
-                foreach ($entity as $item) {
-                    $items[] = [
-                        'id' => $item->getId(),
-                        'text' => (string)$item
-                        ];
-                }
-
-                return json_encode($items);
+        if($this->multiple){
+            if(is_array($entity)){
+                $entity = new ArrayCollection($entity);
             }
-        }
 
-        if (null === $entity || '' === $entity) {
-            return json_encode([]);
-        }
-        if (!is_object($entity)) {
-            throw new UnexpectedTypeException($entity, 'object');
-        }
-        if (!$this->unitOfWork->isInIdentityMap($entity)) {
-            throw new ErrorMappingException('Entities passed to the choice field must be managed');
-        }
+            if($entity instanceof Collection){
+                if ($entity->count() == 0){
+                    return json_encode([]);
+                }else{
+                    $items = [];
+                    foreach ($entity as $item) {
+                        $items[] = [
+                            'id' => $item->getId(),
+                            'text' => (string)$item
+                        ];
+                    }
 
-        return json_encode(array(
-            'id' => $entity->getId(),
-            'text' => (string)$entity
-        ));
+                    return json_encode($items);
+                }
+            }else{
+                return json_encode([]);
+            }
+        }else {
+
+
+            if (null === $entity || '' === $entity) {
+                return json_encode([]);
+            }
+            if (!is_object($entity)) {
+                throw new UnexpectedTypeException($entity, 'object');
+            }
+            if (!$this->unitOfWork->isInIdentityMap($entity)) {
+                throw new ErrorMappingException('Entities passed to the choice field must be managed');
+            }
+
+            return json_encode(array(
+                'id' => $entity->getId(),
+                'text' => (string)$entity
+            ));
+        }
     }
 
     public function reverseTransform($id)
     {
-
         if ('' === $id || null === $id) {
-            return null;
+            return [];
         }
-        $ids = explode(',', $id);
-        if(count($ids)>1){
+
+        if($this->multiple){
+            $ids = explode(',', $id);
+
             $entities = $this->em->getRepository($this->class)->findBy(['id' => $ids]);
 
             if(!count($entities)){
@@ -79,8 +88,8 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
             }
 
             return $entities;
-
         }else{
+
             if (!is_numeric($id)) {
                 throw new UnexpectedTypeException($id, 'numeric' . $id);
             }
