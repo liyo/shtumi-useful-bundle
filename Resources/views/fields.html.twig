@@ -105,7 +105,7 @@
         jQuery(function(){
 
             jQuery("select#{{ form.parent.offsetGet( parent_field ).vars.id }}").change( function() {
-                var selected_index = {{ value ? value : 0 }};
+                var selected_index = {{ value ? value|json_encode : 0 }};
                 jQuery("#loader").show();
                 jQuery.ajax({
                     type: "POST",
@@ -147,6 +147,15 @@
     <script type="text/javascript">
         jQuery(function(){
 
+            var parent_id = "{{ form.parent.offsetGet( parent_field ).vars.id }}";
+            var parent = null;
+
+            if(jQuery('#'+parent_id).length){
+                parent = jQuery('#'+parent_id);
+            }else if(jQuery('#'+parent_id+'_autocomplete_input').length){
+                parent = jQuery('#'+parent_id+'_autocomplete_input');
+            }
+
             jQuery("#{{ form.vars.id }}").select2({
                 placeholder: "{{ empty_value }}",
                 minimumInputLength: 0,
@@ -156,18 +165,20 @@
                     data: function (term, page) {
                         return {
                             term: term,
-                            parent_id: jQuery("#{{ form.parent.offsetGet( parent_field ).vars.id }}").val(),
+                            parent_id: parent.val(),
                             entity_alias: "{{ entity_alias }}"
                         };
                     },
                     results: function (data, page) {
                         return {results: data};
                     }
-                }
+                },
+                'multiple': {{ multiple }}
             });
+
             jQuery("#{{ form.vars.id }}").select2('data', {{ value|raw }});
 
-            jQuery("#{{ form.parent.offsetGet( parent_field ).vars.id }}").change(function(){
+            parent.change(function(){
                 jQuery("#{{ form.vars.id }}").select2('data', null);
             });
         });
