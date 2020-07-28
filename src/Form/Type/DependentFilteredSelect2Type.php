@@ -50,7 +50,8 @@ class DependentFilteredSelect2Type extends AbstractType
 
         $builder->addViewTransformer(new EntityToSelect2ValueTransformer(
             $this->container->get('doctrine')->getManager(),
-            $options['class']
+            $options['class'],
+            $options['multiple']
         ), true);
 
         $builder->setAttribute("parent_field", $options['parent_field']);
@@ -60,12 +61,12 @@ class DependentFilteredSelect2Type extends AbstractType
         $builder->setAttribute("multiple", $options['multiple']);
 
 
-        if ($options['multiple'] && interface_exists(Collection::class)) {
-            $builder
-                ->addEventSubscriber(new MergeDoctrineCollectionListener())
-                //->addViewTransformer(new CollectionToArrayTransformer(), true)
-            ;
-        }
+//        if ($options['multiple'] && interface_exists(Collection::class)) {
+//            $builder
+//                ->addEventSubscriber(new MergeDoctrineCollectionListener())
+//                //->addViewTransformer(new CollectionToArrayTransformer(), true)
+//            ;
+//        }
 
     }
 
