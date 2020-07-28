@@ -194,7 +194,7 @@
     <script type="text/javascript" src="{{ asset('bundles/shtumiuseful/js/datepicker/jquery.datepick.js') }}"></script>
     <script type="text/javascript" src="{{ asset('bundles/shtumiuseful/js/datepicker/jquery.datepick-' ~ locale[0:2] ~ '.js') }}"></script>
 
-    <input {{ block('widget_attributes') }} value="{{ value }}" class="shtumi-daterange">
+    <input {{ block('widget_attributes') }} value="{{ value }}" class="text-center form-control">
 
     <script>
         jQuery('input#{{ form.vars.id }}').datepick({

@@ -9,6 +9,7 @@
 namespace Shtumi\UsefulBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -31,22 +32,18 @@ class DateRangeType extends AbstractType
         $this->container        = $container;
     }
 
+    public function getParent()
+    {
+        return TextType::class;
+    }
+
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => DateRange::class,
             'default' => null,
             'compound' => false,
         ));
-    }
-
-    public function getParent()
-    {
-        return 'text';
-    }
-
-    public function getName()
-    {
-        return 'shtumi_daterange';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -84,6 +81,11 @@ class DateRangeType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $view->vars['datepicker_date_format'] = $form->getConfig()->getAttribute('datepicker_date_format');
-        $view->vars['locale'] = $this->container->get('request')->getLocale();
+        $view->vars['locale'] = 'en';
+    }
+
+    public function getBlockPrefix()
+    {
+        return 'shtumi_daterange';
     }
 }
