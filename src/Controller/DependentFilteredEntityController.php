@@ -153,11 +153,23 @@ class DependentFilteredEntityController extends AbstractController
         $qb->setMaxResults($maxRows);
         $results = $qb->getQuery()->getResult();
 
+		$getter =  $this->getGetterName($entity_inf['property']);
+		$extraGetter =  $this->getGetterName($entity_inf['extra_property']);
+
         $res = array();
-        foreach ($results AS $r){
+        foreach ($results AS $r) {
+			if ($entity_inf['property'])
+				$text = $r->$getter();
+			else $text = (string)$r;
+
+			if ($entity_inf['extra_property'])
+				$extra = $r->$extraGetter();
+			else $extra = '';
+
             $res[] = array(
                 'id' => $r->getId(),
-                'text' => (string)$r
+                'text' => $text,
+				'extra' => $extra,
             );
         }
 
