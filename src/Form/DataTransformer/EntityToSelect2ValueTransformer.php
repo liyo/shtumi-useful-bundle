@@ -16,19 +16,25 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
     protected $em;
     protected $class;
     protected $unitOfWork;
-    protected $multiple;
+	protected $multiple;
+	protected $property;
+	protected $extraProperty;
 
 
-    public function __construct(EntityManager $em, $class, $multiple = false)
+    public function __construct(EntityManager $em, $class, $multiple = false, $property = null, $extraProperty = null)
     {
         $this->em = $em;
         $this->unitOfWork = $this->em->getUnitOfWork();
         $this->class = $class;
-        $this->multiple = $multiple;
+		$this->multiple = $multiple;
+		$this->property = $property;
+		$this->extraProperty = $extraProperty;
     }
 
     public function transform($entity)
     {
+		$getter =  $this->property ? $this->getGetterName($this->property) : '';
+		$extraGetter =  $this->extraProperty ? $this->getGetterName($this->extraProperty) : '';
 
         if($this->multiple){
             if(is_array($entity)){
@@ -41,9 +47,19 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
                 }else{
                     $items = [];
                     foreach ($entity as $item) {
+
+						if ($this->property)
+							$text = $item->$getter();
+						else $text = (string)$entity;
+
+						if ($this->extraProperty)
+							$extra = $item->$extraGetter();
+						else $extra = '';
+
                         $items[] = [
                             'id' => $item->getId(),
-                            'text' => (string)$item
+							'text' => $text,
+							'extra_property' => $extra
                         ];
                     }
 
@@ -68,9 +84,18 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
                 throw new ErrorMappingException('Entities passed to the choice field must be managed');
             }
 
+			if ($this->property)
+				$text = $entity->$getter();
+			else $text = (string)$entity;
+
+			if ($this->extraProperty)
+				$extra = $entity->$extraGetter();
+			else $extra = '';
+
             return json_encode(array(
                 'id' => $entity->getId(),
-                'text' => (string)$entity
+                'text' => $text,
+				'extra_property' => $extra
             ));
         }
     }
@@ -110,4 +135,17 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
             return $entity;
         }
     }
+
+	private function getGetterName($property)
+	{
+		$name = "get";
+		$name .= mb_strtoupper($property[0]) . substr($property, 1);
+
+		while (($pos = strpos($name, '_')) !== false){
+			$name = substr($name, 0, $pos) . mb_strtoupper(substr($name, $pos+1, 1)) . substr($name, $pos+2);
+		}
+
+		return $name;
+
+	}
 }
