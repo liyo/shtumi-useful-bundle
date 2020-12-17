@@ -134,7 +134,7 @@ class DependentFilteredEntityController extends Controller
             $res[] = array(
                 'id' => $r->getId(),
                 'text' => $text,
-				'extra' => $extra,
+				'extra_property' => $extra,
             );
         }
 
