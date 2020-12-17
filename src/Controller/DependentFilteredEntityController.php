@@ -169,7 +169,7 @@ class DependentFilteredEntityController extends AbstractController
             $res[] = array(
                 'id' => $r->getId(),
                 'text' => $text,
-				'extra' => $extra,
+				'extra_property' => $extra,
             );
         }
 
