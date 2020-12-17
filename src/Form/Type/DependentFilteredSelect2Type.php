@@ -44,21 +44,25 @@ class DependentFilteredSelect2Type extends AbstractType
 
         $entities = $this->container->getParameter('shtumi.dependent_filtered_entities');
         $options['class'] = $entities[$options['entity_alias']]['class'];
-        $options['property'] = $entities[$options['entity_alias']]['property'];
+		$options['property'] = $entities[$options['entity_alias']]['property'];
+		$options['extra_property'] = $entities[$options['entity_alias']]['extra_property'];
 
         $options['no_result_msg'] = $entities[$options['entity_alias']]['no_result_msg'];
 
         $builder->addViewTransformer(new EntityToSelect2ValueTransformer(
             $this->container->get('doctrine')->getManager(),
             $options['class'],
-            $options['multiple']
+			$options['multiple'],
+			$options['property'],
+			$options['extra_property']
         ), true);
 
         $builder->setAttribute("parent_field", $options['parent_field']);
         $builder->setAttribute("entity_alias", $options['entity_alias']);
         $builder->setAttribute("no_result_msg", $options['no_result_msg']);
         $builder->setAttribute("empty_value", $options['empty_value']);
-        $builder->setAttribute("multiple", $options['multiple']);
+		$builder->setAttribute("multiple", $options['multiple']);
+		$builder->setAttribute("extra_property", $options['extra_property']);
 
 
 //        if ($options['multiple'] && interface_exists(Collection::class)) {
@@ -76,7 +80,8 @@ class DependentFilteredSelect2Type extends AbstractType
         $view->vars['entity_alias'] = $form->getConfig()->getAttribute('entity_alias');
         $view->vars['no_result_msg'] = $form->getConfig()->getAttribute('no_result_msg');
         $view->vars['empty_value'] = $form->getConfig()->getAttribute('empty_value');
-        $view->vars['multiple'] = $form->getConfig()->getAttribute('multiple', 0);
+		$view->vars['multiple'] = $form->getConfig()->getAttribute('multiple', 0);
+		$view->vars['extra_property'] = $form->getConfig()->getAttribute('extra_property');
     }
 
 }
