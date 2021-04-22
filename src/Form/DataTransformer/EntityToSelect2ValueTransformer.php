@@ -55,8 +55,11 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
         }else {
 
 
-            if (null === $entity || '' === $entity) {
-                return json_encode([]);
+            if (null === $entity || '' === $entity || (is_array($entity) && count($entity) == 0)) {
+                return json_encode(array(
+                    'id' => null,
+                    'text' => '== Choose value =='
+                ));
             }
             if (!is_object($entity)) {
                 throw new UnexpectedTypeException($entity, 'object');
@@ -75,7 +78,11 @@ class EntityToSelect2ValueTransformer implements DataTransformerInterface
     public function reverseTransform($id)
     {
         if ('' === $id || null === $id) {
-            return [];
+            if($this->multiple) {
+                return [];
+            }else{
+                return null;
+            }
         }
 
         if($this->multiple){
