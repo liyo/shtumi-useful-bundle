@@ -36,8 +36,8 @@ class EntityToPropertyTransformer implements DataTransformerInterface
         }
 
         if ($this->property) {
-            $propertyAccessor = PropertyAccess::getPropertyAccessor();
-            
+            $propertyAccessor = PropertyAccess::createPropertyAccessor();
+
             return $propertyAccessor->getValue($entity, $this->property);
         }
 
