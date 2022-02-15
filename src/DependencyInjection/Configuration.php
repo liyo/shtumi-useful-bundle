@@ -17,11 +17,9 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('shtumi_useful');
+        $treeBuilder = new TreeBuilder('shtumi_useful');
 
-        $rootNode
-
+        $treeBuilder->getRootNode()
             ->children()
                 ->arrayNode('autocomplete_entities')
                     ->useAttributeAsKey('id')
