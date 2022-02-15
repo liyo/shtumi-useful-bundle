@@ -94,28 +94,41 @@ class DependentFilteredEntityController extends Controller
         $term = $request->get('term');
         $maxRows = $request->get('maxRows', 20);
 
-        $like = '%' . $term . '%';
-
-        $property = $entity_inf['property'];
-        if (!$entity_inf['property_complicated']) {
-            $property = 'e.' . $property;
-        }
-
         $qb = $em->createQueryBuilder()
             ->select('e')
             ->from($entity_inf['class'], 'e')
-            ->where('e.' . $entity_inf['parent_property'] . ' = :parent_id')
-            ->setParameter('parent_id', $parent_id)
-            ->orderBy('e.' . $entity_inf['order_property'], $entity_inf['order_direction'])
-            ->setParameter('like', $like )
-            ->setMaxResults($maxRows);
+        ;
 
-        if ($entity_inf['case_insensitive']) {
-            $qb->andWhere('LOWER(' . $property . ') LIKE LOWER(:like)');
-        } else {
-            $qb->andWhere($property . ' LIKE :like');
+        if (null !== $entity_inf['callback']) {
+            $repository = $qb->getEntityManager()->getRepository($entity_inf['class']);
+
+            if (!method_exists($repository, $entity_inf['callback'])) {
+                throw new \InvalidArgumentException(sprintf('Callback function "%s" in Repository "%s" does not exist.', $entity_inf['callback'], get_class($repository)));
+            }
+
+            call_user_func(array($repository, $entity_inf['callback']), $qb, $parent_id, $term);
+        }else {
+            $like = '%' . $term . '%';
+
+            $property = $entity_inf['property'];
+            if (!$entity_inf['property_complicated']) {
+                $property = 'e.' . $property;
+            }
+
+            $qb->where('e.' . $entity_inf['parent_property'] . ' = :parent_id')
+                ->setParameter('parent_id', $parent_id)
+                ->orderBy('e.' . $entity_inf['order_property'], $entity_inf['order_direction'])
+                ->setParameter('like', $like)
+            ;
+
+            if ($entity_inf['case_insensitive']) {
+                $qb->andWhere('LOWER(' . $property . ') LIKE LOWER(:like)');
+            } else {
+                $qb->andWhere($property . ' LIKE :like');
+            }
         }
 
+        $qb->setMaxResults($maxRows);
         $results = $qb->getQuery()->getResult();
 
         $res = array();

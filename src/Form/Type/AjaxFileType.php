@@ -28,12 +28,12 @@ class AjaxFileType extends AbstractType
         ));
     }
 
-    public function getParent()
+    public function getParent(): string
     {
         return 'text';
     }
 
-    public function getName()
+    public function getName(): ?string
     {
         return 'shtumi_ajaxfile';
     }

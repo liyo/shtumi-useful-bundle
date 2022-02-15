@@ -17,12 +17,9 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('shtumi_useful');
+        $treeBuilder = new TreeBuilder('shtumi_useful');
 
-        $rootNode
-
-            ->children()
+        $treeBuilder->getRootNode()->children()
                 ->arrayNode('autocomplete_entities')
                     ->useAttributeAsKey('id')
                     ->prototype('array')
@@ -44,6 +41,10 @@ class Configuration implements ConfigurationInterface
                             ->end()
             			    ->booleanNode('case_insensitive')
                                  ->defaultTrue()
+                            ->end()
+                            ->scalarNode('callback')
+                                ->defaultValue(null)
+                                ->cannotBeEmpty()
                             ->end()
                         ->end()
                     ->end()

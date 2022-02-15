@@ -36,7 +36,7 @@ class DependentFilteredEntityType extends AbstractType
         ));
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): ?string
     {
         return 'shtumi_dependent_filtered_entity';
     }

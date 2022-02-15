@@ -12,9 +12,10 @@
 namespace Shtumi\UsefulBundle\Filter;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Sonata\AdminBundle\Filter\Model\FilterData;
 use Sonata\AdminBundle\Form\Type\BooleanType;
 use Sonata\DoctrineORMAdminBundle\Filter\Filter;
-use Sonata\AdminBundle\Datagrid\ProxyQueryInterface;
+use Sonata\DoctrineORMAdminBundle\Datagrid\ProxyQueryInterface;
 
 class AjaxAutocompleteFilter extends Filter
 {
@@ -27,50 +28,51 @@ class AjaxAutocompleteFilter extends Filter
     }
 
     /**
-     * @param ProxyQueryInterface $queryBuilder
+     * @param ProxyQueryInterface $query
      * @param string $alias
      * @param string $field
-     * @param mixed $data
-     * @return
+     * @param FilterData $data
      */
-    public function filter(ProxyQueryInterface $queryBuilder, $alias, $field, $data)
+    public function filter(ProxyQueryInterface $query, $alias, $field, FilterData $data): void
     {
-        if (!$data || !is_array($data) || !array_key_exists('value', $data)) {
+        if (!$data->hasValue()) {
             return;
         }
 
         $entities = $this->container->getParameter('shtumi.autocomplete_entities');
         $field = $entities[$this->getOption('entity_alias')]['property'];
 
-        $this->handleScalar($queryBuilder, $alias, $field, $data);
+        $this->handleScalar($query, $alias, $field, $data);
     }
 
-    protected function handleScalar($queryBuilder, $alias, $field, $data)
+    /**
+     * @param ProxyQueryInterface $query
+     * @param $alias
+     * @param $field
+     * @param FilterData $data
+     */
+    protected function handleScalar(ProxyQueryInterface $query, $alias, $field, FilterData $data): void
     {
-
-        if (empty($data['value'])) {
-            return;
-        }
 
         $callback = $this->getOption('callback');
         if ($callback){
 
-            call_user_func($callback, $queryBuilder, $alias, $field, $data);
+            call_user_func($callback, $query, $alias, $field, $data);
 
         } else {
             if (isset($data['type']) && $data['type'] == BooleanType::TYPE_NO) {
-                $this->applyWhere($queryBuilder, sprintf('%s.%s != :%s', $alias, 'id', $this->getName()));
+                $this->applyWhere($query, sprintf('%s.%s != :%s', $alias, 'id', $this->getName()));
             } else {
-                $this->applyWhere($queryBuilder, sprintf('%s.%s = :%s', $alias, 'id', $this->getName()));
+                $this->applyWhere($query, sprintf('%s.%s = :%s', $alias, 'id', $this->getName()));
             }
 
-            $queryBuilder->setParameter($this->getName(), $data['value']->getId());
+            $query->setParameter($this->getName(), $data['value']->getId());
         }
 
 
     }
 
-    protected function association(ProxyQueryInterface $queryBuilder, $data)
+    protected function association(ProxyQueryInterface $query, FilterData $data): array
     {
 
         $types = array(
@@ -91,18 +93,18 @@ class AjaxAutocompleteFilter extends Filter
         if (!$this->getOption('callback')){
 
             $alias = 's_'.$this->getName();
-            $queryBuilder->leftJoin(sprintf('%s.%s', $queryBuilder->getRootAlias(), $this->getFieldName()), $alias);
+            $query->leftJoin(sprintf('%s.%s', $query->getRootAlias(), $this->getFieldName()), $alias);
             return array($alias, 'id');
 
         } else {
 
-            return array($this->getOption('alias', $queryBuilder->getRootAlias()), false);
+            return array($this->getOption('alias', $query->getRootAlias()), false);
 
         };
 
     }
 
-    public function getDefaultOptions()
+    public function getDefaultOptions(): array
     {
         return array(
             'mapping_type' => ClassMetadataInfo::MANY_TO_ONE,
@@ -115,7 +117,7 @@ class AjaxAutocompleteFilter extends Filter
         );
     }
 
-    public function getRenderSettings()
+    public function getRenderSettings(): array
     {
         $options = array_merge($this->getFieldOptions(), array('entity_alias' => $this->getOption('entity_alias')));
 
