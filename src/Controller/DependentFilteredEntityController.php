@@ -2,35 +2,58 @@
 
 namespace Shtumi\UsefulBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Doctrine\Persistence\ManagerRegistry;
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DependentFilteredEntityController extends Controller
+class DependentFilteredEntityController extends AbstractController
 {
 
-    public function getOptionsAction(Request $request)
-    {
+    /**
+     * @var ManagerRegistry $em
+     */
+    private $em;
 
-        $em = $this->get('doctrine')->getManager();
-        //$request = $this->getRequest();
-        $translator = $this->get('translator');
+    /**
+     * @var TranslatorInterface $translator
+     */
+    private $translator;
+
+
+    private $filteredEntities;
+
+
+    public function __construct(ManagerRegistry $em, TranslatorInterface $translator, ParameterBagInterface $parameterBag){
+        $this->em = $em;
+        $this->translator = $translator;
+
+        $this->filteredEntities = $parameterBag->get('shtumi.dependent_filtered_entities');
+    }
+
+
+    public function getOptions(Request $request)
+    {
 
         $entity_alias = $request->get('entity_alias');
         $parent_id    = $request->get('parent_id');
         $empty_value  = $request->get('empty_value');
 
-        $entities = $this->get('service_container')->getParameter('shtumi.dependent_filtered_entities');
-        $entity_inf = $entities[$entity_alias];
+
+        $entity_inf = $this->filteredEntities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
             $this->denyAccessUnlessGranted($entity_inf['role']);
         }
 
-        $qb = $this->getDoctrine()
+        $qb = $this->em
             ->getRepository($entity_inf['class'])
             ->createQueryBuilder('e')
             ->where('e.' . $entity_inf['parent_property'] . ' = :parent_id')
@@ -56,7 +79,7 @@ class DependentFilteredEntityController extends Controller
 
         $html = '';
         if ($empty_value !== false)
-            $html .= '<option value="">' . $translator->trans($empty_value) . '</option>';
+            $html .= '<option value="">' . $this->translator->trans($empty_value) . '</option>';
 
         $getter =  $this->getGetterName($entity_inf['property']);
 
@@ -74,18 +97,13 @@ class DependentFilteredEntityController extends Controller
     }
 
 
-    public function getJSONAction(Request $request)
+    public function getJson(Request $request)
     {
-        /** @var \Doctrine\ORM\EntityManager $em */
-        $em = $this->get('doctrine.orm.entity_manager');
-        //$request = $this->get('request');
-
         $entity_alias = $request->get('entity_alias');
         $parent_id    = $request->get('parent_id');
         $empty_value  = $request->get('empty_value');
 
-        $entities = $this->get('service_container')->getParameter('shtumi.dependent_filtered_entities');
-        $entity_inf = $entities[$entity_alias];
+        $entity_inf = $this->filteredEntities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
             $this->denyAccessUnlessGranted($entity_inf['role']);
@@ -94,9 +112,8 @@ class DependentFilteredEntityController extends Controller
         $term = $request->get('term');
         $maxRows = $request->get('maxRows', 20);
 
-        $qb = $em->createQueryBuilder()
+        $qb = $this->em->getRepository($entity_inf['class'])->createQueryBuilder('e')
             ->select('e')
-            ->from($entity_inf['class'], 'e')
         ;
 
         if (null !== $entity_inf['callback']) {
@@ -139,7 +156,7 @@ class DependentFilteredEntityController extends Controller
             );
         }
 
-        return new Response(json_encode($res));
+        return new JsonResponse($res);
     }
 
     private function getGetterName($property)

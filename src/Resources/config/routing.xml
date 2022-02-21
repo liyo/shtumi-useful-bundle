@@ -5,15 +5,15 @@
     xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
     <route id="shtumi_ajaxautocomplete" path="/shtumi_ajaxautocomplete">
-        <default key="_controller">ShtumiUsefulBundle:AjaxAutocompleteJSON:getJSON</default>
+        <default key="_controller">Shtumi\UsefulBundle\Controller\AjaxAutocompleteJSONController::getJSONAction</default>
     </route>
 
     <route id="shtumi_select2_entity" path="/shtumi_select2_entity">
-        <default key="_controller">ShtumiUsefulBundle:Select2Entity:getJSON</default>
+        <default key="_controller">Shtumi\UsefulBundle\Controller\Select2EntityController::getJson</default>
     </route>
 
     <route id="shtumi_ajaxfileupload" path="/shtumi_ajaxfileupload">
-        <default key="_controller">ShtumiUsefulBundle:AjaxFile:upload</default>
+        <default key="_controller">Shtumi\UsefulBundle\Controller\AjaxFileController::uploadAction</default>
     </route>
 
     <route id="shtumi_dependent_filtered_entity" path="/shtumi_dependent_filtered_entity">
@@ -21,7 +21,7 @@
     </route>
 
     <route id="shtumi_dependent_filtered_select2" path="/shtumi_dependent_filtered_select2">
-        <default key="_controller">ShtumiUsefulBundle:DependentFilteredEntity:getJson</default>
+        <default key="_controller">Shtumi\UsefulBundle\Controller\DependentFilteredEntityController::getJson</default>
     </route>
 
 </routes>

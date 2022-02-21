@@ -2,26 +2,49 @@
 
 namespace Shtumi\UsefulBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class Select2EntityController extends Controller
+class Select2EntityController extends AbstractController
 {
+
+
+    /**
+     * @var ManagerRegistry $em
+     */
+    private $em;
+
+    /**
+     * @var TranslatorInterface $translator
+     */
+    private $translator;
+
+
+    private $filteredEntities;
+
+
+    public function __construct(ManagerRegistry $em, TranslatorInterface $translator, ParameterBagInterface $parameterBag){
+        $this->em = $em;
+        $this->translator = $translator;
+
+        $this->filteredEntities = $parameterBag->get('shtumi.autocomplete_entities');
+    }
+
+
     /**
      * @param Request $request
      * @return JsonResponse
      * @throws \Exception
      */
-    public function getJSONAction(Request $request)
+    public function getJson(Request $request) :JsonResponse
     {
-        $em = $this->get('doctrine')->getManager();
-
-        $entities = $this->get('service_container')->getParameter('shtumi.autocomplete_entities');
-
         $entity_alias = $request->get('entity_alias');
-        $entity_inf = $entities[$entity_alias];
+        $entity_inf = $this->filteredEntities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
             $this->denyAccessUnlessGranted($entity_inf['role']);
@@ -56,7 +79,7 @@ class Select2EntityController extends Controller
                 $where_clause_rhs = 'LIKE :like';
         }
 
-        $results = $em->createQuery(
+        $results = $this->em->createNativeQuery(
             'SELECT e as entity, e.' . $property . ' as property
              FROM ' . $entity_inf['class'] . ' e ' .
              $where_clause_lhs . ' ' . $where_clause_rhs . ' ' .

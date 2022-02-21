@@ -49,6 +49,28 @@
             <argument>%shtumi.date_range%</argument>
         </service>
 
+        <service id="Shtumi\UsefulBundle\Controller\DependentFilteredEntityController" public="true" autowire="true" autoconfigure="true">
+            <argument type="service" id="doctrine"></argument>
+            <argument type="service" id="translator"></argument>
+            <argument type="service" id="parameter_bag"></argument>
+        </service>
+
+        <service id="Shtumi\UsefulBundle\Controller\AjaxAutocompleteJSONController" public="true" autowire="true">
+            <argument type="service" id="doctrine"></argument>
+            <argument type="service" id="translator"></argument>
+            <argument type="service" id="parameter_bag"></argument>
+        </service>
+
+        <service id="Shtumi\UsefulBundle\Controller\AjaxFileController" public="true" autowire="true">
+
+        </service>
+
+        <service id="Shtumi\UsefulBundle\Controller\Select2EntityController" public="true" autowire="true">
+            <argument type="service" id="doctrine"></argument>
+            <argument type="service" id="translator"></argument>
+            <argument type="service" id="parameter_bag"></argument>
+        </service>
+
     </services>
 
 

@@ -2,25 +2,45 @@
 
 namespace Shtumi\UsefulBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AjaxAutocompleteJSONController extends Controller
+class AjaxAutocompleteJSONController extends AbstractController
 {
+
+    /**
+     * @var ManagerRegistry $em
+     */
+    private $em;
+
+    /**
+     * @var TranslatorInterface $translator
+     */
+    private $translator;
+
+
+    private $filteredEntities;
+
+
+    public function __construct(ManagerRegistry $em, TranslatorInterface $translator, ParameterBagInterface $parameterBag){
+        $this->em = $em;
+        $this->translator = $translator;
+
+        $this->filteredEntities = $parameterBag->get('shtumi.autocomplete_entities');
+    }
 
     public function getJSONAction(Request $request)
     {
 
-        $em = $this->get('doctrine')->getManager();
-
-        $entities = $this->get('service_container')->getParameter('shtumi.autocomplete_entities');
-
         $entity_alias = $request->get('entity_alias');
-        $entity_inf = $entities[$entity_alias];
+        $entity_inf = $this->filteredEntities[$entity_alias];
 
         if ($entity_inf['role'] !== 'IS_AUTHENTICATED_ANONYMOUSLY'){
             $this->denyAccessUnlessGranted($entity_inf['role']);
@@ -45,7 +65,7 @@ class AjaxAutocompleteJSONController extends Controller
 
 	    $property = $entity_inf['property'];
 
-        $qb = $this->getDoctrine()
+        $qb = $this->em
             ->getRepository($entity_inf['class'])
             ->createQueryBuilder('e')
             ->select('e.' . $property)

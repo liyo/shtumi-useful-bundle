@@ -142,7 +142,7 @@
 
 {% block shtumi_dependent_filtered_select2_widget %}
 
-    <input {{ block('widget_attributes') }} />
+    <input type="hidden" {{ block('widget_attributes') }} />
 
     <script type="text/javascript">
         jQuery(function(){
@@ -158,28 +158,32 @@
 
             jQuery("#{{ form.vars.id }}").select2({
                 placeholder: "{{ empty_value }}",
-                minimumInputLength: 0,
-                ajax: {
-                    url: '{{ path('shtumi_dependent_filtered_select2') }}',
-                    dataType: 'json',
-                    data: function (term, page) {
-                        return {
-                            term: term,
-                            parent_id: parent.val(),
-                            entity_alias: "{{ entity_alias }}"
-                        };
-                    },
-                    results: function (data, page) {
-                        return {results: data};
-                    }
-                },
-                'multiple': {{ multiple }}
+                multiple: {{ multiple }}
             });
 
             jQuery("#{{ form.vars.id }}").select2('data', {{ value|raw }});
 
             parent.change(function(){
-                jQuery("#{{ form.vars.id }}").select2('data', null);
+                jQuery.ajax({
+                    url: '{{ path('shtumi_dependent_filtered_select2') }}',
+                    dataType: 'json',
+                    data: {
+                        term: jQuery("#{{ form.vars.id }}").select2('data'),
+                        parent_id: parent.val(),
+                        entity_alias: "{{ entity_alias }}"
+                    },
+                    success: function (data, page) {
+                        jQuery("#{{ form.vars.id }}").select2('destroy');
+                        jQuery("#{{ form.vars.id }}").select2({
+                            placeholder: "{{ empty_value }}",
+                            multiple: {{ multiple }},
+                            data: data
+                        });
+                    }}
+
+                );
+
+
             });
         });
     </script>

@@ -19,7 +19,7 @@ class Select2EntityType extends AbstractType
         $this->container = $container;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function setDefaultOptions(OptionsResolverInterface $resolver) :void
     {
         $resolver->setDefaults(array(
             'entity_alias'      => null,
@@ -29,17 +29,17 @@ class Select2EntityType extends AbstractType
         ));
     }
 
-    public function getName()
+    public function getName() :string
     {
         return 'shtumi_select2_entity';
     }
 
-    public function getParent()
+    public function getParent() :?string
     {
         return 'text';
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $entities = $this->container->getParameter('shtumi.autocomplete_entities');
 
@@ -63,7 +63,7 @@ class Select2EntityType extends AbstractType
         $builder->setAttribute('entity_alias', $options['entity_alias']);
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options) : void
     {
         $view->vars['entity_alias'] = $form->getConfig()->getAttribute('entity_alias');
     }
