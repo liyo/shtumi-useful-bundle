@@ -152,11 +152,9 @@ class DependentFilteredEntityController extends AbstractController
         $qb->setMaxResults($maxRows);
         $results = $qb->getQuery()->getResult();
 
-        $res = [
-            'results' => []
-        ];
+        $res = array();
         foreach ($results AS $r){
-            $res['results'] = array(
+            $res[] = array(
                 'id' => $r->getId(),
                 'text' => (string)$r
             );

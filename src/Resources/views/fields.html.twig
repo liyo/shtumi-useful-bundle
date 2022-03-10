@@ -168,7 +168,10 @@
                             parent_id: parent.val(),
                             entity_alias: "{{ entity_alias }}"
                         };
-                    }
+                    },
+                    processResults: function(data, page) {
+                        return { results: data };
+                    },
                 },
                 'multiple': {{ multiple }}
             });
