@@ -152,15 +152,17 @@ class DependentFilteredEntityController extends AbstractController
         $qb->setMaxResults($maxRows);
         $results = $qb->getQuery()->getResult();
 
-        $res = array();
+        $res = [
+            'results' => []
+        ];
         foreach ($results AS $r){
-            $res[] = array(
+            $res['results'] = array(
                 'id' => $r->getId(),
                 'text' => (string)$r
             );
         }
 
-        return new JsonResponse(['results' => $res]);
+        return new JsonResponse($res);
     }
 
     private function getGetterName($property)
