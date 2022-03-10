@@ -125,7 +125,11 @@ class DependentFilteredEntityController extends AbstractController
 
             call_user_func(array($repository, $entity_inf['callback']), $qb, $parent_id, $term);
         }else {
-            $like = '%' . $term . '%';
+            if(isset($term['term'])) {
+                $like = '%' . $term['term'] . '%';
+            }else{
+                $like = '%';
+            }
 
             $property = $entity_inf['property'];
             if (!$entity_inf['property_complicated']) {
@@ -156,7 +160,7 @@ class DependentFilteredEntityController extends AbstractController
             );
         }
 
-        return new JsonResponse($res);
+        return new JsonResponse(['results' => $res]);
     }
 
     private function getGetterName($property)

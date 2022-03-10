@@ -142,7 +142,7 @@
 
 {% block shtumi_dependent_filtered_select2_widget %}
 
-    <input type="hidden" {{ block('widget_attributes') }} />
+    <select {{ block('widget_attributes') }} ></select>
 
     <script type="text/javascript">
         jQuery(function(){
@@ -158,32 +158,32 @@
 
             jQuery("#{{ form.vars.id }}").select2({
                 placeholder: "{{ empty_value }}",
-                multiple: {{ multiple }}
-            });
-
-            jQuery("#{{ form.vars.id }}").select2('data', {{ value|raw }});
-
-            parent.change(function(){
-                jQuery.ajax({
+                minimumInputLength: 0,
+                ajax: {
                     url: '{{ path('shtumi_dependent_filtered_select2') }}',
                     dataType: 'json',
-                    data: {
-                        term: jQuery("#{{ form.vars.id }}").select2('data'),
-                        parent_id: parent.val(),
-                        entity_alias: "{{ entity_alias }}"
-                    },
-                    success: function (data, page) {
-                        jQuery("#{{ form.vars.id }}").select2('destroy');
-                        jQuery("#{{ form.vars.id }}").select2({
-                            placeholder: "{{ empty_value }}",
-                            multiple: {{ multiple }},
-                            data: data
-                        });
-                    }}
-
-                );
+                    data: function (term, page) {
+                        return {
+                            term: term,
+                            parent_id: parent.val(),
+                            entity_alias: "{{ entity_alias }}"
+                        };
+                    }
+                },
+                'multiple': {{ multiple }}
+            });
 
 
+            var data = {{ value|raw }};
+
+            if(typeof(data.id) !== 'udefined')
+            {
+                var newOption = new Option(data.text, data.id, false, false);
+                jQuery("#{{ form.vars.id }}").append(newOption).trigger('change');
+            }
+
+            parent.change(function(){
+                jQuery("#{{ form.vars.id }}").select2('data', null);
             });
         });
     </script>
