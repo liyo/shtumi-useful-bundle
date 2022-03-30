@@ -160,7 +160,7 @@ class DependentFilteredEntityController extends AbstractController
             );
         }
 
-        return new JsonResponse(['results' => $res]);
+        return new JsonResponse($res);
     }
 
     private function getGetterName($property)
