@@ -131,6 +131,7 @@ class DependentFilteredEntityController extends AbstractController
                 $like = '%';
             }
 
+
             $property = $entity_inf['property'];
             if (!$entity_inf['property_complicated']) {
                 $property = 'e.' . $property;
